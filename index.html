@@ -1,758 +1,811 @@
 <!doctype html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Riizq — Ferma boshqaruvi</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"/>
 <style>
-:root {
-  --background: #fbf8f1;
-  --card: #ffffff;
-  --primary: #c9a24a;
-  --primary-hover: #b8923f;
-  --primary-light: #f4ead2;
-  --primary-dark: #7c6122;
-  --ink: #2f2a1f;
-  --ink-secondary: #645d4f;
-  --ink-muted: #756d5e;
-  --border: #e8dcbf;
-  --input-border: #9c917c;
-  --focus: #92620a;
-  --success: #356b4a;
-  --success-light: #e8f1eb;
-  --danger: #a33c37;
-  --danger-light: #f8e9e8;
-  --warning: #92620a;
-  --warning-light: #fdf3dc;
-  --neutral-light: #f3efe6;
-  --card-shadow: 0 1px 2px rgba(60,45,10,.05), 0 4px 16px rgba(60,45,10,.05);
-  --radius-card: 14px;
-  --radius-ctrl: 10px;
-}
-*, *::before, *::after { box-sizing: border-box; }
-html { color-scheme: light; }
-body {
-  margin: 0; min-height: 100dvh;
-  background: var(--background); color: var(--ink);
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  font-size: 15px; line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-button, [role=button] { cursor: pointer; }
-button:disabled { cursor: not-allowed; }
-a { color: inherit; text-decoration: none; }
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-::placeholder { color: var(--ink-muted); opacity: 1; }
-
-/* ========== LAYOUT ========== */
-.app { display: flex; flex-direction: column; min-height: 100dvh; }
-.page { display: none; flex-direction: column; gap: 24px; padding: 20px 16px 100px; max-width: 900px; margin: 0 auto; width: 100%; }
-.page.active { display: flex; }
-.auth-page { display: none; min-height: 100dvh; align-items: center; justify-content: center; padding: 24px 16px; }
-.auth-page.active { display: flex; }
-
-/* ========== HEADER ========== */
-.header {
-  position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; padding: 12px 16px;
-  background: rgba(251,248,241,.92);
-  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-}
-.header-brand { display: flex; align-items: center; gap: 10px; }
-.farm-logo {
-  display: grid; place-items: center; flex-shrink: 0;
-  width: 38px; height: 38px; border-radius: 50%;
-  background: linear-gradient(180deg, #e2c06c, #b4862c);
-  color: #fff; font-size: 14px; font-weight: 700;
-}
-.header-farm-name { font-weight: 600; font-size: 16px; }
-.header-actions { display: flex; align-items: center; gap: 8px; }
-.avatar {
-  width: 34px; height: 34px; border-radius: 50%;
-  background: var(--primary-light); color: var(--primary-dark);
-  display: grid; place-items: center; font-weight: 600; font-size: 14px;
-  border: 1.5px solid var(--border); cursor: pointer;
-}
-
-/* ========== BOTTOM TAB BAR ========== */
-.tabbar-wrap {
-  --n: 4;
-  position: fixed; left: 0; right: 0;
-  bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 35;
-  width: min(calc(60px * var(--n) + 240px), calc(100% - 24px));
-  margin: 0 auto;
-  font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
-  letter-spacing: -0.01em;
-}
-.tabbar {
-  position: relative; display: grid;
-  grid-template-columns: repeat(var(--n), 1fr);
-  padding: 5px; border-radius: 999px;
-  background: rgba(255,255,255,.88);
-  -webkit-backdrop-filter: blur(22px) saturate(1.8);
-  backdrop-filter: blur(22px) saturate(1.8);
-  border: 0.5px solid rgba(60,45,10,.08);
-  box-shadow: 0 10px 34px rgba(60,45,10,.14), 0 2px 6px rgba(60,45,10,.06), inset 0 1px 0 rgba(255,255,255,.9);
-}
-.tab-indicator {
-  position: absolute; top: 5px; bottom: 5px; left: 5px;
-  width: calc((100% - 10px) / var(--n));
-  border-radius: 999px; background: rgba(201,162,74,.18);
-  transform: translateX(calc(var(--active-tab, 0) * 100%));
-  transition: transform .5s cubic-bezier(.34, 1.3, .64, 1);
-}
-.tab {
-  position: relative; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 3px;
-  min-height: 56px; padding: 6px 4px 5px;
-  border: 0; border-radius: 999px; background: none;
-  font: inherit; color: var(--ink);
-  -webkit-tap-highlight-color: transparent;
-  transition: color .25s, transform .15s;
-}
-.tab:active { transform: scale(.93); }
-.tab.active { color: var(--primary-dark); }
-.tab svg { width: 26px; height: 26px; stroke-width: 1.8; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
-.tab.active svg { stroke-width: 2.2; }
-.tab-label { font-size: 11px; font-weight: 500; white-space: nowrap; }
-.tab.active .tab-label { font-weight: 600; }
-
-/* ========== PAGE TITLE ========== */
-.page-title { font-size: 22px; font-weight: 700; margin: 0; }
-.page-subtitle { color: var(--ink-secondary); margin: 0; }
-
-/* ========== CARD ========== */
-.card {
-  background: var(--card); border-radius: var(--radius-card);
-  border: 1px solid var(--border); box-shadow: var(--card-shadow); overflow: hidden;
-}
-.card-header {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border);
-}
-.card-header-left { display: flex; align-items: center; gap: 10px; }
-.card-header-icon { color: var(--ink-secondary); display: grid; place-items: center; }
-.card-header-icon svg { width: 20px; height: 20px; stroke-width: 1.8; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
-.card-title { font-size: 16px; font-weight: 600; margin: 0; }
-.card-desc { font-size: 13px; color: var(--ink-secondary); margin: 2px 0 0; }
-.card-body { padding: 16px 20px; }
-
-/* ========== STAT CARDS ========== */
-.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-@media (min-width: 700px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
-.stat-card {
-  background: var(--card); border-radius: var(--radius-card);
-  border: 1px solid var(--border); box-shadow: var(--card-shadow);
-  padding: 14px 16px; display: flex; flex-direction: column; gap: 6px;
-  cursor: pointer; transition: border-color .15s, box-shadow .15s;
-  text-decoration: none; color: inherit;
-}
-.stat-card:hover { border-color: var(--primary-hover); }
-.stat-card-icon { color: var(--ink-secondary); margin-bottom: 2px; }
-.stat-card-icon svg { width: 20px; height: 20px; stroke-width: 1.8; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
-.stat-card-value { font-size: 22px; font-weight: 700; line-height: 1.2; }
-.stat-card-label { font-size: 13px; color: var(--ink-secondary); font-weight: 500; }
-.stat-card-secondary { font-size: 12px; color: var(--ink-muted); }
-
-/* ========== QUICK ACTIONS ========== */
-.quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-@media (min-width: 700px) { .quick-grid { grid-template-columns: repeat(4, 1fr); } }
-.quick-action {
-  display: flex; align-items: center; gap: 12px;
-  min-height: 76px; border-radius: var(--radius-card);
-  border: 1px solid var(--border); background: var(--card);
-  padding: 12px 16px; box-shadow: var(--card-shadow);
-  cursor: pointer; transition: border-color .15s, background .15s;
-  text-decoration: none; color: inherit;
-}
-.quick-action:hover { border-color: var(--primary-hover); background: rgba(244,234,210,.4); }
-.quick-icon {
-  display: inline-flex; width: 44px; height: 44px; flex-shrink: 0;
-  align-items: center; justify-content: center; border-radius: 12px;
-  background: var(--primary); color: var(--ink);
-}
-.quick-icon svg { width: 20px; height: 20px; stroke-width: 2; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
-.quick-label { font-weight: 600; font-size: 14px; }
-.quick-desc { font-size: 12px; color: var(--ink-secondary); }
-
-/* ========== BAR LIST ========== */
-.bar-list { display: flex; flex-direction: column; gap: 10px; }
-.bar-item { display: flex; flex-direction: column; gap: 4px; }
-.bar-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-.bar-track { height: 6px; background: var(--neutral-light); border-radius: 999px; overflow: hidden; }
-.bar-fill { height: 100%; background: var(--primary); border-radius: 999px; }
-
-/* ========== TABLE ========== */
-.data-table { width: 100%; border-collapse: collapse; }
-.data-table th {
-  text-align: left; padding: 10px 16px; font-size: 12px; font-weight: 600;
-  color: var(--ink-secondary); text-transform: uppercase; letter-spacing: .04em;
-  border-bottom: 1px solid var(--border); background: var(--neutral-light);
-}
-.data-table td {
-  padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px;
-  vertical-align: middle;
-}
-.data-table tr:last-child td { border-bottom: none; }
-.data-table tbody tr { cursor: pointer; transition: background .12s; }
-.data-table tbody tr:hover { background: var(--neutral-light); }
-.th-right, .td-right { text-align: right !important; }
-
-/* ========== BADGE ========== */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 500;
-}
-.badge-success { background: var(--success-light); color: var(--success); }
-.badge-danger { background: var(--danger-light); color: var(--danger); }
-.badge-warning { background: var(--warning-light); color: var(--warning); }
-.badge-neutral { background: var(--neutral-light); color: var(--ink-secondary); }
-
-/* ========== ALERT ========== */
-.alert {
-  padding: 12px 16px; border-radius: var(--radius-card); border: 1px solid;
-  display: flex; gap: 10px; font-size: 14px;
-}
-.alert-warning { background: var(--warning-light); border-color: #e8c97a; color: var(--warning); }
-.alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-/* ========== FORMS ========== */
-.auth-card {
-  background: var(--card); border-radius: 20px;
-  border: 1px solid var(--border); box-shadow: 0 8px 40px rgba(60,45,10,.12);
-  padding: 32px; width: 100%; max-width: 420px;
-}
-.auth-logo {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-  margin-bottom: 24px; text-align: center;
-}
-.auth-logo-mark {
-  width: 56px; height: 56px; border-radius: 16px;
-  background: linear-gradient(180deg, #e2c06c, #b4842a);
-  display: grid; place-items: center; color: #fff; font-size: 22px; font-weight: 800;
-}
-.auth-title { font-size: 22px; font-weight: 700; margin: 0; }
-.auth-subtitle { font-size: 14px; color: var(--ink-secondary); margin: 4px 0 0; }
-.form-group { display: flex; flex-direction: column; gap: 16px; }
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field-label { font-size: 14px; font-weight: 500; }
-.field-label span { color: var(--danger); margin-left: 2px; }
-.field-hint { font-size: 12px; color: var(--ink-muted); }
-.field-error { font-size: 12px; color: var(--danger); }
-.input-wrap { position: relative; }
-.uz-prefix {
-  position: absolute; left: 0; top: 0; bottom: 0;
-  display: flex; align-items: center; padding: 0 12px;
-  font-size: 15px; font-weight: 500; color: var(--ink);
-  background: var(--neutral-light); border-right: 1px solid var(--input-border);
-  border-radius: var(--radius-ctrl) 0 0 var(--radius-ctrl);
-  pointer-events: none; user-select: none;
-}
-input[type=text], input[type=tel], input[type=password], input[type=search], select {
-  width: 100%; padding: 10px 12px;
-  border: 1.5px solid var(--input-border); border-radius: var(--radius-ctrl);
-  background: var(--card); color: var(--ink); font: inherit; font-size: 15px;
-  outline: none; transition: border-color .15s, box-shadow .15s;
-  -webkit-appearance: none;
-}
-input[type=text]:focus, input[type=tel]:focus, input[type=password]:focus,
-input[type=search]:focus, select:focus {
-  border-color: var(--primary); box-shadow: 0 0 0 3px rgba(201,162,74,.2);
-}
-.phone-input { padding-left: 90px !important; }
-.btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 7px; padding: 10px 20px; border-radius: var(--radius-ctrl);
-  font: inherit; font-size: 15px; font-weight: 600;
-  border: none; cursor: pointer; transition: background .15s, box-shadow .15s;
-  text-decoration: none; white-space: nowrap;
-}
-.btn-primary {
-  background: var(--primary); color: #fff;
-}
-.btn-primary:hover { background: var(--primary-hover); box-shadow: 0 2px 8px rgba(201,162,74,.35); }
-.btn-secondary {
-  background: var(--neutral-light); color: var(--ink);
-  border: 1px solid var(--border);
-}
-.btn-secondary:hover { background: var(--primary-light); }
-.btn-ghost { background: none; color: var(--ink-secondary); padding: 6px 10px; }
-.btn-ghost:hover { background: var(--neutral-light); color: var(--ink); }
-.btn-lg { padding: 13px 24px; font-size: 16px; }
-.btn-sm { padding: 7px 14px; font-size: 13px; }
-.btn-full { width: 100%; }
-.btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.divider { display: flex; align-items: center; gap: 12px; }
-.divider-line { flex: 1; height: 1px; background: var(--border); }
-.divider-text { font-size: 13px; color: var(--ink-secondary); }
-.google-btn {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  width: 100%; padding: 11px; border-radius: var(--radius-ctrl);
-  border: 1.5px solid var(--border); background: var(--card);
-  font: inherit; font-size: 15px; font-weight: 500; color: var(--ink);
-  cursor: pointer; transition: background .15s;
-}
-.google-btn:hover { background: var(--neutral-light); }
-.auth-switch { text-align: center; font-size: 14px; color: var(--ink-secondary); margin-top: 16px; }
-.auth-switch a { color: var(--primary-dark); font-weight: 500; text-decoration: underline; cursor: pointer; }
-.forgot-link { font-size: 13px; font-weight: 500; color: var(--warning); text-decoration: none; }
-.forgot-link:hover { text-decoration: underline; }
-
-/* ========== AUTH TABS ========== */
-.auth-tabs {
-  display: flex; background: var(--neutral-light);
-  border-radius: var(--radius-ctrl); padding: 4px; gap: 4px;
-  margin-bottom: 24px;
-}
-.auth-tab {
-  flex: 1; padding: 9px 12px; border: none; border-radius: 8px;
-  font: inherit; font-size: 14px; font-weight: 500;
-  background: none; color: var(--ink-muted); cursor: pointer;
-  transition: background .2s, color .2s, box-shadow .2s;
-}
-.auth-tab.active {
-  background: var(--card); color: var(--ink); font-weight: 600;
-  box-shadow: 0 1px 4px rgba(60,45,10,.12);
-}
-
-/* ========== MOVEMENTS ========== */
-.movements-list { list-style: none; margin: 0; padding: 0; }
-.movement-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 20px; border-bottom: 1px solid var(--border);
-}
-.movement-item:last-child { border-bottom: none; }
-.movement-dot {
-  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-}
-.movement-dot-in { background: var(--success); }
-.movement-dot-out { background: var(--danger); }
-.movement-info { flex: 1; min-width: 0; }
-.movement-name { font-size: 14px; font-weight: 500; }
-.movement-date { font-size: 12px; color: var(--ink-muted); }
-.movement-qty { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.movement-qty-in { color: var(--success); }
-.movement-qty-out { color: var(--danger); }
-
-/* ========== SECTION ========== */
-section > h2 { display: none; }
-
-/* ========== RESPONSIVE ========== */
-@media (max-width: 600px) {
-  .auth-card { padding: 24px 20px; }
-  .hide-mobile { display: none !important; }
-}
+:root{--background:#fbf8f1;--card:#ffffff;--primary:#c9a24a;--primary-hover:#b8923f;--primary-light:#f4ead2;--primary-dark:#7c6122;--ink:#2f2a1f;--ink-secondary:#645d4f;--ink-muted:#756d5e;--border:#e8dcbf;--input-border:#9c917c;--focus:#92620a;--success:#356b4a;--success-light:#e8f1eb;--danger:#a33c37;--danger-light:#f8e9e8;--warning:#92620a;--warning-light:#fdf3dc;--neutral-light:#f3efe6;--card-shadow:0 1px 2px rgba(60,45,10,.05),0 4px 16px rgba(60,45,10,.05);--radius-card:14px;--radius-ctrl:10px;}
+*,*::before,*::after{box-sizing:border-box;}
+html{color-scheme:light;}
+body{margin:0;min-height:100dvh;background:var(--background);color:var(--ink);font-family:'Inter',ui-sans-serif,system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+button,[role=button]{cursor:pointer;}
+button:disabled{cursor:not-allowed;opacity:.5;}
+a{color:inherit;text-decoration:none;}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+::placeholder{color:var(--ink-muted);opacity:1;}
+.app{display:flex;flex-direction:column;min-height:100dvh;}
+.page{display:none;flex-direction:column;gap:24px;padding:20px 16px 100px;max-width:900px;margin:0 auto;width:100%;}
+.page.active{display:flex;}
+.auth-page{display:none;min-height:100dvh;align-items:center;justify-content:center;padding:24px 16px;}
+.auth-page.active{display:flex;}
+.header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:rgba(251,248,241,.92);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.header-brand{display:flex;align-items:center;gap:10px;}
+.farm-logo{display:grid;place-items:center;flex-shrink:0;width:38px;height:38px;border-radius:50%;background:linear-gradient(180deg,#e2c06c,#b4862c);color:#fff;font-size:14px;font-weight:700;}
+.header-farm-name{font-weight:600;font-size:16px;}
+.header-actions{display:flex;align-items:center;gap:8px;}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--primary-light);color:var(--primary-dark);display:grid;place-items:center;font-weight:600;font-size:14px;border:1.5px solid var(--border);cursor:pointer;}
+.tabbar-wrap{--n:4;position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom));z-index:35;width:min(calc(60px * var(--n) + 240px),calc(100% - 24px));margin:0 auto;}
+.tabbar{position:relative;display:grid;grid-template-columns:repeat(var(--n),1fr);padding:5px;border-radius:999px;background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);border:.5px solid rgba(60,45,10,.08);box-shadow:0 10px 34px rgba(60,45,10,.14),0 2px 6px rgba(60,45,10,.06),inset 0 1px 0 rgba(255,255,255,.9);}
+.tab-indicator{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px) / var(--n));border-radius:999px;background:rgba(201,162,74,.18);transform:translateX(calc(var(--active-tab,0) * 100%));transition:transform .5s cubic-bezier(.34,1.3,.64,1);}
+.tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:56px;padding:6px 4px 5px;border:0;border-radius:999px;background:none;font:inherit;color:var(--ink);-webkit-tap-highlight-color:transparent;transition:color .25s,transform .15s;}
+.tab:active{transform:scale(.93);}
+.tab.active{color:var(--primary-dark);}
+.tab svg{width:26px;height:26px;stroke-width:1.8;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}
+.tab.active svg{stroke-width:2.2;}
+.tab-label{font-size:11px;font-weight:500;white-space:nowrap;}
+.tab.active .tab-label{font-weight:600;}
+.page-title{font-size:22px;font-weight:700;margin:0;}
+.page-subtitle{color:var(--ink-secondary);margin:0;}
+.card{background:var(--card);border-radius:var(--radius-card);border:1px solid var(--border);box-shadow:var(--card-shadow);overflow:hidden;}
+.card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);}
+.card-header-left{display:flex;align-items:center;gap:10px;}
+.card-header-icon{color:var(--ink-secondary);display:grid;place-items:center;}
+.card-header-icon svg{width:20px;height:20px;stroke-width:1.8;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}
+.card-title{font-size:16px;font-weight:600;margin:0;}
+.card-desc{font-size:13px;color:var(--ink-secondary);margin:2px 0 0;}
+.card-body{padding:16px 20px;}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+@media(min-width:700px){.stat-grid{grid-template-columns:repeat(4,1fr);}}
+.stat-card{background:var(--card);border-radius:var(--radius-card);border:1px solid var(--border);box-shadow:var(--card-shadow);padding:14px 16px;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:border-color .15s,box-shadow .15s;text-decoration:none;color:inherit;}
+.stat-card:hover{border-color:var(--primary-hover);}
+.stat-card-icon{color:var(--ink-secondary);margin-bottom:2px;}
+.stat-card-icon svg{width:20px;height:20px;stroke-width:1.8;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}
+.stat-card-value{font-size:22px;font-weight:700;line-height:1.2;}
+.stat-card-label{font-size:13px;color:var(--ink-secondary);font-weight:500;}
+.stat-card-secondary{font-size:12px;color:var(--ink-muted);}
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media(min-width:700px){.quick-grid{grid-template-columns:repeat(4,1fr);}}
+.quick-action{display:flex;align-items:center;gap:12px;min-height:76px;border-radius:var(--radius-card);border:1px solid var(--border);background:var(--card);padding:12px 16px;box-shadow:var(--card-shadow);cursor:pointer;transition:border-color .15s,background .15s;text-decoration:none;color:inherit;}
+.quick-action:hover{border-color:var(--primary-hover);background:rgba(244,234,210,.4);}
+.quick-icon{display:inline-flex;width:44px;height:44px;flex-shrink:0;align-items:center;justify-content:center;border-radius:12px;background:var(--primary);color:var(--ink);}
+.quick-icon svg{width:20px;height:20px;stroke-width:2;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}
+.quick-label{font-weight:600;font-size:14px;}
+.quick-desc{font-size:12px;color:var(--ink-secondary);}
+.bar-list{display:flex;flex-direction:column;gap:10px;}
+.bar-item{display:flex;flex-direction:column;gap:4px;}
+.bar-row{display:flex;justify-content:space-between;align-items:center;font-size:14px;}
+.bar-track{height:6px;background:var(--neutral-light);border-radius:999px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--primary);border-radius:999px;}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{text-align:left;padding:10px 16px;font-size:12px;font-weight:600;color:var(--ink-secondary);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);background:var(--neutral-light);}
+.data-table td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tbody tr{cursor:pointer;transition:background .12s;}
+.data-table tbody tr:hover{background:var(--neutral-light);}
+.th-right,.td-right{text-align:right!important;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500;}
+.badge-success{background:var(--success-light);color:var(--success);}
+.badge-danger{background:var(--danger-light);color:var(--danger);}
+.badge-warning{background:var(--warning-light);color:var(--warning);}
+.badge-neutral{background:var(--neutral-light);color:var(--ink-secondary);}
+.alert{padding:12px 16px;border-radius:var(--radius-card);border:1px solid;display:flex;gap:10px;font-size:14px;}
+.alert-warning{background:var(--warning-light);border-color:#e8c97a;color:var(--warning);}
+.alert svg{width:18px;height:18px;flex-shrink:0;margin-top:1px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.auth-card{background:var(--card);border-radius:20px;border:1px solid var(--border);box-shadow:0 8px 40px rgba(60,45,10,.12);padding:32px;width:100%;max-width:420px;}
+.auth-logo{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:24px;text-align:center;}
+.auth-logo-mark{width:56px;height:56px;border-radius:16px;background:linear-gradient(180deg,#e2c06c,#b4842a);display:grid;place-items:center;color:#fff;font-size:22px;font-weight:800;}
+.auth-title{font-size:22px;font-weight:700;margin:0;}
+.auth-subtitle{font-size:14px;color:var(--ink-secondary);margin:4px 0 0;}
+.form-group{display:flex;flex-direction:column;gap:16px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field-label{font-size:14px;font-weight:500;}
+.field-label span{color:var(--danger);margin-left:2px;}
+.field-hint{font-size:12px;color:var(--ink-muted);}
+.field-error{font-size:12px;color:var(--danger);}
+input[type=text],input[type=tel],input[type=number],input[type=search],select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--input-border);border-radius:var(--radius-ctrl);background:var(--card);color:var(--ink);font:inherit;font-size:15px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;}
+input[type=text]:focus,input[type=tel]:focus,input[type=number]:focus,input[type=search]:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(201,162,74,.2);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:var(--radius-ctrl);font:inherit;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:background .15s,box-shadow .15s;text-decoration:none;white-space:nowrap;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-hover);box-shadow:0 2px 8px rgba(201,162,74,.35);}
+.btn-secondary{background:var(--neutral-light);color:var(--ink);border:1px solid var(--border);}
+.btn-secondary:hover{background:var(--primary-light);}
+.btn-ghost{background:none;color:var(--ink-secondary);padding:6px 10px;}
+.btn-ghost:hover{background:var(--neutral-light);color:var(--ink);}
+.btn-danger{background:var(--danger-light);color:var(--danger);border:1px solid #f0c0be;}
+.btn-danger:hover{background:#f8d7d6;}
+.btn-lg{padding:13px 24px;font-size:16px;}
+.btn-sm{padding:7px 14px;font-size:13px;}
+.btn-full{width:100%;}
+.btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.divider{display:flex;align-items:center;gap:12px;}
+.divider-line{flex:1;height:1px;background:var(--border);}
+.divider-text{font-size:13px;color:var(--ink-secondary);}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;border-radius:var(--radius-ctrl);border:1.5px solid var(--border);background:var(--card);font:inherit;font-size:15px;font-weight:500;color:var(--ink);cursor:pointer;transition:background .15s;}
+.google-btn:hover{background:var(--neutral-light);}
+.auth-switch{text-align:center;font-size:14px;color:var(--ink-secondary);margin-top:16px;}
+.auth-switch a{color:var(--primary-dark);font-weight:500;text-decoration:underline;cursor:pointer;}
+.auth-tabs{display:flex;background:var(--neutral-light);border-radius:var(--radius-ctrl);padding:4px;gap:4px;margin-bottom:24px;}
+.auth-tab{flex:1;padding:9px 12px;border:none;border-radius:8px;font:inherit;font-size:14px;font-weight:500;background:none;color:var(--ink-muted);cursor:pointer;transition:background .2s,color .2s,box-shadow .2s;}
+.auth-tab.active{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(60,45,10,.12);}
+.movements-list{list-style:none;margin:0;padding:0;}
+.movement-item{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);}
+.movement-item:last-child{border-bottom:none;}
+.movement-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.movement-dot-in{background:var(--success);}
+.movement-dot-out{background:var(--danger);}
+.movement-info{flex:1;min-width:0;}
+.movement-name{font-size:14px;font-weight:500;}
+.movement-date{font-size:12px;color:var(--ink-muted);}
+.movement-qty{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;}
+.movement-qty-in{color:var(--success);}
+.movement-qty-out{color:var(--danger);}
+@media(max-width:600px){.auth-card{padding:24px 20px;}.hide-mobile{display:none!important;}}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:var(--card);border-radius:16px;border:1px solid var(--border);width:100%;max-width:460px;max-height:90dvh;overflow-y:auto;box-shadow:0 20px 60px rgba(60,45,10,.25);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:16px;font-weight:600;margin:0;}
+.modal-body{padding:20px;}
+.modal-footer{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.modal-close{background:none;border:none;padding:4px;color:var(--ink-secondary);cursor:pointer;border-radius:6px;}
+.modal-close:hover{background:var(--neutral-light);}
+.modal-close svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;}
+/* Toast */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#2f2a1f;color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;font-weight:500;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+/* Report */
+.report-text{background:var(--neutral-light);border-radius:10px;padding:16px;font-size:14px;line-height:1.8;white-space:pre-wrap;}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app" id="app">
 
-<!-- ===================== AUTH: KIRISH / RO'YXAT ===================== -->
-<div class="auth-page active" id="pg-login">
+<!-- AUTH PAGE -->
+<div class="auth-page active" id="pg-auth">
   <div class="auth-card">
     <div class="auth-logo">
       <div class="auth-logo-mark">R</div>
       <h1 class="auth-title">Riizq</h1>
       <p class="auth-subtitle">Ferma boshqaruv tizimi</p>
     </div>
-
-    <!-- Tabs -->
-    <div class="auth-tabs" id="auth-tabs">
+    <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login-btn" onclick="authTab('login')">Kirish</button>
       <button class="auth-tab" id="tab-reg-btn" onclick="authTab('reg')">Ro'yxatdan o'tish</button>
     </div>
-
-    <!-- Login panel -->
     <div id="panel-login">
       <div class="form-group">
         <div class="field">
           <label class="field-label">Ism va familiya <span>*</span></label>
-          <input id="login-name" type="text" placeholder="Masalan: Alisher Karimov" autocomplete="name" />
+          <input id="login-name" type="text" placeholder="Masalan: Alisher Karimov" autocomplete="name"/>
         </div>
-        <button class="btn btn-primary btn-lg btn-full" onclick="loginWithName()">
+        <button class="btn btn-primary btn-lg btn-full" onclick="doLogin()">
           <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
           Kirish
         </button>
-        <div class="divider">
-          <div class="divider-line"></div>
-          <span class="divider-text">yoki</span>
-          <div class="divider-line"></div>
-        </div>
-        <button class="google-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-          </svg>
+        <div class="divider"><div class="divider-line"></div><span class="divider-text">yoki</span><div class="divider-line"></div></div>
+        <button class="google-btn" onclick="doGoogleLogin()">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
           Google bilan kirish
         </button>
       </div>
     </div>
-
-    <!-- Register panel -->
     <div id="panel-reg" style="display:none">
       <div class="form-group">
         <div class="field">
           <label class="field-label">Ism va familiya <span>*</span></label>
-          <input id="reg-name" type="text" placeholder="Masalan: Alisher Karimov" autocomplete="name" />
+          <input id="reg-name" type="text" placeholder="Masalan: Alisher Karimov" autocomplete="name"/>
         </div>
-        <button class="btn btn-primary btn-lg btn-full" onclick="registerWithName()">
+        <button class="btn btn-primary btn-lg btn-full" onclick="doRegister()">
           <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
           Ro'yxatdan o'tish
         </button>
-        <div class="divider">
-          <div class="divider-line"></div>
-          <span class="divider-text">yoki</span>
-          <div class="divider-line"></div>
-        </div>
-        <button class="google-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-          </svg>
+        <div class="divider"><div class="divider-line"></div><span class="divider-text">yoki</span><div class="divider-line"></div></div>
+        <button class="google-btn" onclick="doGoogleLogin()">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
           Google bilan kirish
         </button>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- ===================== MAIN APP ===================== -->
-<div id="main-app" style="display:none; flex-direction:column; min-height:100dvh;">
-
-  <!-- Header -->
+<!-- MAIN APP -->
+<div id="main-app" style="display:none;flex-direction:column;min-height:100dvh;">
   <header class="header">
     <div class="header-brand">
-      <div class="farm-logo">AB</div>
-      <span class="header-farm-name">Abdullayev fermasi</span>
+      <div class="farm-logo" id="farm-logo-initials">AB</div>
+      <span class="header-farm-name" id="header-farm-name">Abdullayev fermasi</span>
     </div>
     <div class="header-actions">
-      <div class="avatar" id="header-avatar" title="Foydalanuvchi">A</div>
+      <div class="avatar" id="header-avatar">A</div>
     </div>
   </header>
 
-  <!-- Pages -->
-
   <!-- DASHBOARD -->
-  <div class="page active" id="pg-dashboard">
-    <p class="page-subtitle">Assalomu alaykum, <span id="greet-name">Alisher</span>! <strong style="color:var(--ink)">Abdullayev fermasi</strong> bo'yicha bugungi holat.</p>
+  <div class="page active" id="pg-dashboard"></div>
 
-    <section aria-label="Asosiy ko'rsatkichlar">
-      <h2>Ko'rsatkichlar</h2>
+  <!-- ANIMALS -->
+  <div class="page" id="pg-animals"></div>
+
+  <!-- FEED -->
+  <div class="page" id="pg-feed"></div>
+
+  <!-- MORE -->
+  <div class="page" id="pg-more"></div>
+
+  <!-- Tab bar -->
+  <nav class="tabbar-wrap">
+    <div class="tabbar" style="--n:4">
+      <div class="tab-indicator" id="tab-indicator"></div>
+      <button class="tab active" id="tab-0" onclick="switchTab(0)">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="tab-label">Bosh sahifa</span>
+      </button>
+      <button class="tab" id="tab-1" onclick="switchTab(1)">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+        <span class="tab-label">Hayvonlar</span>
+      </button>
+      <button class="tab" id="tab-2" onclick="switchTab(2)">
+        <svg viewBox="0 0 24 24"><path d="M22 8.5V16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.5"/><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6z"/></svg>
+        <span class="tab-label">Yem ombori</span>
+      </button>
+      <button class="tab" id="tab-3" onclick="switchTab(3)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        <span class="tab-label">Boshqa</span>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModalOnBackdrop(event)">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-title">Modal</h2>
+      <button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =================== STATE ===================
+const SEED = {
+  animals: [
+    {id:1,birka:'A-0042',laqab:'Sariqcha',tur:'Sigir',jins:'Ona',yoshOy:38,vazni:480,holati:'faol'},
+    {id:2,birka:'Q-0018',laqab:'Oqtepa',tur:"Qo'y",jins:"Qo'chqor",yoshOy:20,vazni:62,holati:'faol'},
+    {id:3,birka:'A-0031',laqab:'',tur:'Sigir',jins:'Buqa',yoshOy:49,vazni:620,holati:'faol'},
+    {id:4,birka:'E-0005',laqab:'Qoracha',tur:'Echki',jins:'Ona',yoshOy:29,vazni:38,holati:'arxivda'},
+    {id:5,birka:"Q-0027",laqab:'',tur:"Qo'y",jins:'Ona',yoshOy:8,vazni:0,holati:'faol'}
+  ],
+  feeds: [
+    {id:1,nom:'Bedapoya',miqdor:3400,narx:1200,minimal:500},
+    {id:2,nom:'Somon',miqdor:5800,narx:400,minimal:500},
+    {id:3,nom:'Kombi yem',miqdor:1200,narx:3500,minimal:200},
+    {id:4,nom:'Arpa',miqdor:120,narx:2800,minimal:500},
+    {id:5,nom:'Temir sulfat',miqdor:0,narx:0,minimal:50},
+    {id:6,nom:"Bug'doy kepagi",miqdor:1880,narx:1800,minimal:300}
+  ],
+  movements: [
+    {id:1,feedId:1,feedNom:'Bedapoya',tur:'kirim',miqdor:500,sana:'2026-10-21T09:15'},
+    {id:2,feedId:4,feedNom:'Arpa',tur:'sarf',miqdor:80,sana:'2026-10-21T08:00'},
+    {id:3,feedId:3,feedNom:'Kombi yem',tur:'kirim',miqdor:600,sana:'2026-10-19T16:20'},
+    {id:4,feedId:6,feedNom:"Bug'doy kepagi",tur:'sarf',miqdor:120,sana:'2026-10-19T07:30'}
+  ],
+  user: null,
+  nextId: 100
+};
+
+let state;
+function loadState() {
+  try {
+    const s = localStorage.getItem('riizq_state');
+    state = s ? JSON.parse(s) : JSON.parse(JSON.stringify(SEED));
+  } catch(e) {
+    state = JSON.parse(JSON.stringify(SEED));
+  }
+  if (!state.movements) state.movements = JSON.parse(JSON.stringify(SEED.movements));
+  if (!state.nextId) state.nextId = 100;
+}
+function saveState() {
+  try { localStorage.setItem('riizq_state', JSON.stringify(state)); } catch(e) {}
+}
+function nextId() { return state.nextId++; }
+
+// =================== UTILS ===================
+function fmt(n) {
+  if (n === undefined || n === null) return '0';
+  return Number(n).toLocaleString('ru-RU');
+}
+function fmtAge(months) {
+  if (!months) return '—';
+  const y = Math.floor(months / 12);
+  const m = months % 12;
+  if (y === 0) return m + ' oy';
+  if (m === 0) return y + ' yil';
+  return y + ' yil ' + m + ' oy';
+}
+function fmtDate(sana) {
+  if (!sana) return '';
+  const d = new Date(sana);
+  if (isNaN(d)) return sana;
+  const day = String(d.getDate()).padStart(2,'0');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return day + '-' + months[d.getMonth()] + '-' + d.getFullYear() + ', ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function feedStatus(f) {
+  if (f.miqdor === 0) return {cls:'badge-danger',txt:'Tugagan'};
+  if (f.miqdor < f.minimal) return {cls:'badge-warning',txt:'Kam qoldi'};
+  return {cls:'badge-success',txt:'Yetarli'};
+}
+function animalBadge(holati) {
+  if (holati === 'faol') return '<span class="badge badge-success">Faol</span>';
+  return '<span class="badge badge-neutral">Arxivda</span>';
+}
+function feedBadge(f) {
+  const s = feedStatus(f);
+  return `<span class="badge ${s.cls}">${s.txt}</span>`;
+}
+
+// =================== TOAST ===================
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// =================== MODAL ===================
+let modalCallback = null;
+function openModal(title, bodyHTML, footerHTML, cb) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = bodyHTML;
+  document.getElementById('modal-footer').innerHTML = footerHTML;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+  modalCallback = cb || null;
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+  modalCallback = null;
+}
+function closeModalOnBackdrop(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+// =================== AUTH ===================
+function authTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('tab-login-btn').classList.toggle('active', isLogin);
+  document.getElementById('tab-reg-btn').classList.toggle('active', !isLogin);
+  document.getElementById('panel-login').style.display = isLogin ? '' : 'none';
+  document.getElementById('panel-reg').style.display = isLogin ? 'none' : '';
+}
+function doLogin() {
+  const val = (document.getElementById('login-name').value || '').trim();
+  if (!val) { document.getElementById('login-name').focus(); return; }
+  state.user = {name: val};
+  saveState();
+  showMainApp();
+}
+function doRegister() {
+  const val = (document.getElementById('reg-name').value || '').trim();
+  if (!val) { document.getElementById('reg-name').focus(); return; }
+  state.user = {name: val};
+  saveState();
+  showMainApp();
+}
+function doGoogleLogin() {
+  const name = prompt("Ism va familiyangizni kiriting:");
+  if (!name || !name.trim()) return;
+  state.user = {name: name.trim()};
+  saveState();
+  showMainApp();
+}
+function showMainApp() {
+  document.getElementById('pg-auth').classList.remove('active');
+  document.getElementById('main-app').style.display = 'flex';
+  document.getElementById('main-app').style.flexDirection = 'column';
+  const firstName = (state.user.name || 'Foydalanuvchi').split(' ')[0];
+  document.getElementById('header-avatar').textContent = firstName[0].toUpperCase();
+  switchTab(0);
+}
+function doLogout() {
+  closeModal();
+  state.user = null;
+  saveState();
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('pg-auth').classList.add('active');
+  document.getElementById('login-name').value = '';
+  document.getElementById('reg-name').value = '';
+  authTab('login');
+}
+
+// =================== TABS ===================
+let currentTab = 0;
+function switchTab(idx) {
+  document.getElementById('tab-indicator').style.setProperty('--active-tab', idx);
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById('tab-' + i);
+    if (btn) btn.classList.toggle('active', i === idx);
+  }
+  const pages = ['pg-dashboard','pg-animals','pg-feed','pg-more'];
+  pages.forEach((pid, i) => {
+    const p = document.getElementById(pid);
+    if (p) p.classList.toggle('active', i === idx);
+  });
+  currentTab = idx;
+  if (idx === 0) renderDashboard();
+  else if (idx === 1) renderAnimals();
+  else if (idx === 2) renderFeed();
+  else if (idx === 3) renderMore();
+}
+
+// =================== DASHBOARD ===================
+function renderDashboard() {
+  const totalAnimals = state.animals.length;
+  const turGroups = [...new Set(state.animals.map(a => a.tur))];
+  const totalFeedKg = state.feeds.reduce((s, f) => s + f.miqdor, 0);
+  const totalFeedVal = state.feeds.reduce((s, f) => s + f.miqdor * f.narx, 0);
+
+  const turCounts = {};
+  state.animals.forEach(a => { turCounts[a.tur] = (turCounts[a.tur] || 0) + 1; });
+  const maxCount = Math.max(...Object.values(turCounts), 1);
+
+  const barsHTML = Object.entries(turCounts).map(([tur, cnt]) =>
+    `<div class="bar-item">
+      <div class="bar-row"><span>${tur}</span><span style="font-variant-numeric:tabular-nums;font-weight:600">${cnt} bosh</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(cnt/maxCount*100).toFixed(1)}%"></div></div>
+    </div>`
+  ).join('');
+
+  const lowFeeds = [...state.feeds].sort((a,b) => a.miqdor - b.miqdor).slice(0, 3);
+  const feedRowsHTML = lowFeeds.map(f => {
+    const st = feedStatus(f);
+    return `<li style="display:flex;justify-content:space-between;align-items:center;padding:11px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-weight:500;font-size:14px">${f.nom}</span>
+      <span style="display:flex;align-items:center;gap:8px;font-size:14px;font-variant-numeric:tabular-nums">
+        <span class="badge ${st.cls}">${st.txt}</span> ${fmt(f.miqdor)} kg
+      </span>
+    </li>`;
+  }).join('');
+
+  const recentMoves = [...state.movements].reverse().slice(0, 4);
+  const movesHTML = recentMoves.map(m =>
+    `<li class="movement-item">
+      <span class="movement-dot movement-dot-${m.tur === 'kirim' ? 'in' : 'out'}"></span>
+      <div class="movement-info">
+        <div class="movement-name">${m.feedNom} ${m.tur}</div>
+        <div class="movement-date">${fmtDate(m.sana)}</div>
+      </div>
+      <span class="movement-qty movement-qty-${m.tur === 'kirim' ? 'in' : 'out'}">${m.tur === 'kirim' ? '+' : '-'}${fmt(m.miqdor)} kg</span>
+    </li>`
+  ).join('');
+
+  const firstName = state.user ? (state.user.name || '').split(' ')[0] : '';
+
+  document.getElementById('pg-dashboard').innerHTML = `
+    <p class="page-subtitle">Assalomu alaykum, <strong style="color:var(--ink)">${firstName}</strong>! Bugungi holat.</p>
+
+    <section>
       <div class="stat-grid">
-        <a class="stat-card" onclick="switchTab(1)">
-          <div class="stat-card-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
-          </div>
-          <div class="stat-card-value">247</div>
+        <div class="stat-card" onclick="switchTab(1)" style="cursor:pointer">
+          <div class="stat-card-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/></svg></div>
+          <div class="stat-card-value">${totalAnimals}</div>
           <div class="stat-card-label">Jami hayvonlar</div>
-          <div class="stat-card-secondary">Sigir: 142 · Qo'y: 89</div>
-        </a>
-        <a class="stat-card">
-          <div class="stat-card-icon">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          </div>
-          <div class="stat-card-value">8</div>
-          <div class="stat-card-label">Hayvon guruhlari</div>
-          <div class="stat-card-secondary">4 ta faol guruh</div>
-        </a>
-        <a class="stat-card" onclick="switchTab(2)">
-          <div class="stat-card-icon">
-            <svg viewBox="0 0 24 24"><path d="M22 8.5V16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.5"/><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6z"/></svg>
-          </div>
-          <div class="stat-card-value">12.4 t</div>
+          <div class="stat-card-secondary">${Object.entries(turCounts).map(([t,c])=>t+': '+c).join(' · ')}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+          <div class="stat-card-value">${turGroups.length}</div>
+          <div class="stat-card-label">Hayvon turlari</div>
+          <div class="stat-card-secondary">${turGroups.join(', ')}</div>
+        </div>
+        <div class="stat-card" onclick="switchTab(2)" style="cursor:pointer">
+          <div class="stat-card-icon"><svg viewBox="0 0 24 24"><path d="M22 8.5V16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.5"/><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6z"/></svg></div>
+          <div class="stat-card-value">${totalFeedKg >= 1000 ? (totalFeedKg/1000).toFixed(1)+' t' : fmt(totalFeedKg)+' kg'}</div>
           <div class="stat-card-label">Yem zaxirasi</div>
-          <div class="stat-card-secondary">6 turdagi yem</div>
-        </a>
-        <a class="stat-card">
-          <div class="stat-card-icon">
-            <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-          </div>
-          <div class="stat-card-value">4.2 mln</div>
-          <div class="stat-card-label">Oylik xarajatlar</div>
-          <div class="stat-card-secondary">Shu oy, ombor xaridlari</div>
-        </a>
+          <div class="stat-card-secondary">${state.feeds.length} turdagi yem</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+          <div class="stat-card-value">${totalFeedVal >= 1000000 ? (totalFeedVal/1000000).toFixed(1)+' mln' : fmt(totalFeedVal)}</div>
+          <div class="stat-card-label">Ombor qiymati</div>
+          <div class="stat-card-secondary">so'm</div>
+        </div>
       </div>
     </section>
 
-    <section aria-label="Tezkor amallar">
-      <h2>Tezkor amallar</h2>
+    <section>
       <div class="quick-grid">
-        <a class="quick-action" onclick="switchTab(1)">
-          <div class="quick-icon">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </div>
-          <div>
-            <div class="quick-label">Hayvon qo'shish</div>
-            <div class="quick-desc">Yangi bosh ro'yxatga</div>
-          </div>
-        </a>
-        <a class="quick-action" onclick="switchTab(2)">
-          <div class="quick-icon">
-            <svg viewBox="0 0 24 24"><path d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5z"/><path d="M12 8v8M8 12h8"/></svg>
-          </div>
-          <div>
-            <div class="quick-label">Yem qo'shish</div>
-            <div class="quick-desc">Yangi yem turi</div>
-          </div>
-        </a>
-        <a class="quick-action">
-          <div class="quick-icon">
-            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
-          </div>
-          <div>
-            <div class="quick-label">Yem hisoblash</div>
-            <div class="quick-desc">Miqdor va narx</div>
-          </div>
-        </a>
-        <a class="quick-action">
-          <div class="quick-icon">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          </div>
-          <div>
-            <div class="quick-label">Xarajat kiritish</div>
-            <div class="quick-desc">Xaridlar va xarajatlar</div>
-          </div>
-        </a>
+        <div class="quick-action" onclick="openAddAnimalModal()">
+          <div class="quick-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          <div><div class="quick-label">Hayvon qo'shish</div><div class="quick-desc">Yangi bosh ro'yxatga</div></div>
+        </div>
+        <div class="quick-action" onclick="openAddFeedModal()">
+          <div class="quick-icon"><svg viewBox="0 0 24 24"><path d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5z"/><path d="M12 8v8M8 12h8"/></svg></div>
+          <div><div class="quick-label">Yem qo'shish</div><div class="quick-desc">Yangi yem turi</div></div>
+        </div>
+        <div class="quick-action" onclick="openRationModal()">
+          <div class="quick-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg></div>
+          <div><div class="quick-label">Yem hisoblash</div><div class="quick-desc">Miqdor va narx</div></div>
+        </div>
+        <div class="quick-action" onclick="openExpenseModal()">
+          <div class="quick-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div><div class="quick-label">Xarajat kiritish</div><div class="quick-desc">Xaridlar va xarajatlar</div></div>
+        </div>
       </div>
     </section>
 
-    <div style="display:grid; gap:20px; grid-template-columns:1fr">
-      <div style="display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-header-left">
-              <div class="card-header-icon">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/></svg>
-              </div>
-              <div>
-                <p class="card-title">Hayvonlar bo'yicha</p>
-              </div>
-            </div>
-            <button class="btn btn-ghost btn-sm" onclick="switchTab(1)">Barchasi</button>
-          </div>
-          <div class="card-body">
-            <div class="bar-list">
-              <div class="bar-item">
-                <div class="bar-row"><span>Sigir</span><span style="font-variant-numeric:tabular-nums;font-weight:600">142 bosh</span></div>
-                <div class="bar-track"><div class="bar-fill" style="width:57.5%"></div></div>
-              </div>
-              <div class="bar-item">
-                <div class="bar-row"><span>Qo'y</span><span style="font-variant-numeric:tabular-nums;font-weight:600">89 bosh</span></div>
-                <div class="bar-track"><div class="bar-fill" style="width:36%"></div></div>
-              </div>
-              <div class="bar-item">
-                <div class="bar-row"><span>Echki</span><span style="font-variant-numeric:tabular-nums;font-weight:600">16 bosh</span></div>
-                <div class="bar-track"><div class="bar-fill" style="width:6.5%"></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-header-left">
-              <div class="card-header-icon">
-                <svg viewBox="0 0 24 24"><path d="M22 8.5V16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.5"/><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6z"/></svg>
-              </div>
-              <div>
-                <p class="card-title">Yem ombori holati</p>
-                <p class="card-desc">Eng kam qolgan yemlar</p>
-              </div>
-            </div>
-            <button class="btn btn-ghost btn-sm" onclick="switchTab(2)">Omborga</button>
-          </div>
-          <div class="card-body" style="padding:0">
-            <ul style="list-style:none;margin:0;padding:0">
-              <li style="display:flex;justify-content:space-between;align-items:center;padding:11px 20px;border-bottom:1px solid var(--border)">
-                <span style="font-weight:500;font-size:14px">Temir sulfat</span>
-                <span style="display:flex;align-items:center;gap:8px;font-size:14px;font-variant-numeric:tabular-nums">
-                  <span class="badge badge-danger">Tugagan</span> 0 kg
-                </span>
-              </li>
-              <li style="display:flex;justify-content:space-between;align-items:center;padding:11px 20px;border-bottom:1px solid var(--border)">
-                <span style="font-weight:500;font-size:14px">Arpa</span>
-                <span style="display:flex;align-items:center;gap:8px;font-size:14px;font-variant-numeric:tabular-nums">
-                  <span class="badge badge-warning">Kam qoldi</span> 120 kg
-                </span>
-              </li>
-              <li style="display:flex;justify-content:space-between;align-items:center;padding:11px 20px">
-                <span style="font-weight:500;font-size:14px">Bedapoya</span>
-                <span style="font-size:14px;font-variant-numeric:tabular-nums">3 400 kg</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
+    <div style="display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
       <div class="card">
         <div class="card-header">
           <div class="card-header-left">
-            <div class="card-header-icon">
-              <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
-            </div>
-            <p class="card-title">Yaqindagi ombor harakatlari</p>
+            <div class="card-header-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/></svg></div>
+            <p class="card-title">Hayvonlar bo'yicha</p>
           </div>
+          <button class="btn btn-ghost btn-sm" onclick="switchTab(1)">Barchasi</button>
         </div>
-        <ul class="movements-list">
-          <li class="movement-item">
-            <span class="movement-dot movement-dot-in"></span>
-            <div class="movement-info">
-              <div class="movement-name">Bedapoya kirim</div>
-              <div class="movement-date">21-Oct-2026, 09:15</div>
-            </div>
-            <span class="movement-qty movement-qty-in">+500 kg</span>
-          </li>
-          <li class="movement-item">
-            <span class="movement-dot movement-dot-out"></span>
-            <div class="movement-info">
-              <div class="movement-name">Arpa sarf</div>
-              <div class="movement-date">21-Oct-2026, 08:00</div>
-            </div>
-            <span class="movement-qty movement-qty-out">-80 kg</span>
-          </li>
-          <li class="movement-item">
-            <span class="movement-dot movement-dot-in"></span>
-            <div class="movement-info">
-              <div class="movement-name">Temir sulfat kirim</div>
-              <div class="movement-date">20-Oct-2026, 14:30</div>
-            </div>
-            <span class="movement-qty movement-qty-in">+200 kg</span>
-          </li>
-          <li class="movement-item">
-            <span class="movement-dot movement-dot-out"></span>
-            <div class="movement-info">
-              <div class="movement-name">Somon sarf</div>
-              <div class="movement-date">20-Oct-2026, 07:45</div>
-            </div>
-            <span class="movement-qty movement-qty-out">-150 kg</span>
-          </li>
-        </ul>
+        <div class="card-body"><div class="bar-list">${barsHTML || '<p style="color:var(--ink-muted);font-size:14px">Hayvonlar yo\'q</p>'}</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-header-icon"><svg viewBox="0 0 24 24"><path d="M22 8.5V16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.5"/><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6z"/></svg></div>
+            <div><p class="card-title">Yem ombori holati</p><p class="card-desc">Eng kam qolgan yemlar</p></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="switchTab(2)">Omborga</button>
+        </div>
+        <div class="card-body" style="padding:0"><ul style="list-style:none;margin:0;padding:0">${feedRowsHTML}</ul></div>
       </div>
     </div>
-  </div>
 
-  <!-- ANIMALS -->
-  <div class="page" id="pg-animals">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-left">
+          <div class="card-header-icon"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg></div>
+          <p class="card-title">Yaqindagi ombor harakatlari</p>
+        </div>
+      </div>
+      <ul class="movements-list">${movesHTML || '<li style="padding:16px 20px;color:var(--ink-muted);font-size:14px">Harakat yo\'q</li>'}</ul>
+    </div>
+  `;
+}
+
+// =================== ANIMALS ===================
+let animalSearch = '', animalFilterTur = '', animalFilterAge = '';
+
+function renderAnimals() {
+  let filtered = state.animals.filter(a => {
+    const q = animalSearch.toLowerCase();
+    if (q && !a.birka.toLowerCase().includes(q) && !(a.laqab||'').toLowerCase().includes(q)) return false;
+    if (animalFilterTur && a.tur !== animalFilterTur) return false;
+    if (animalFilterAge === 'buzoq' && a.yoshOy > 6) return false;
+    if (animalFilterAge === 'osmir' && (a.yoshOy <= 6 || a.yoshOy > 24)) return false;
+    if (animalFilterAge === 'katta' && a.yoshOy <= 24) return false;
+    return true;
+  });
+
+  const rowsHTML = filtered.map(a => `
+    <tr>
+      <td><div><p style="font-weight:600;margin:0">${a.birka}</p>${a.laqab ? `<p style="font-size:12px;color:var(--ink-secondary);margin:2px 0 0">${a.laqab}</p>` : ''}</div></td>
+      <td>${a.tur} · ${a.jins}</td>
+      <td>${fmtAge(a.yoshOy)}</td>
+      <td class="td-right" style="font-variant-numeric:tabular-nums">${a.vazni ? fmt(a.vazni)+' kg' : '—'}</td>
+      <td>${animalBadge(a.holati)}</td>
+      <td class="td-right hide-mobile">
+        <div style="display:flex;gap:4px;justify-content:flex-end">
+          <button class="btn btn-ghost btn-sm" style="padding:5px 8px" onclick="openEditAnimalModal(${a.id})">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-sm" style="padding:5px 8px;color:var(--danger)" onclick="confirmDeleteAnimal(${a.id})">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('pg-animals').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <h1 class="page-title">Hayvonlar</h1>
-      <button class="btn btn-primary btn-sm">
+      <button class="btn btn-primary btn-sm" onclick="openAddAnimalModal()">
         <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Hayvon qo'shish
       </button>
     </div>
-
     <div class="card">
       <div style="padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">
-        <div style="flex:1;min-width:220px;position:relative">
+        <div style="flex:1;min-width:200px;position:relative">
           <svg viewBox="0 0 24 24" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--ink-secondary);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="search" placeholder="Birka raqami yoki laqab" style="padding-left:36px" />
+          <input type="search" placeholder="Birka raqami yoki laqab" style="padding-left:36px" value="${animalSearch}" oninput="animalSearch=this.value;renderAnimals()"/>
         </div>
-        <select style="width:180px">
-          <option>Barcha turlar</option>
-          <option>Sigir</option>
-          <option>Qo'y</option>
-          <option>Echki</option>
-          <option>Ot</option>
-          <option>Cho'chqa</option>
+        <select style="width:160px" onchange="animalFilterTur=this.value;renderAnimals()">
+          <option value="">Barcha turlar</option>
+          <option value="Sigir"${animalFilterTur==='Sigir'?' selected':''}>Sigir</option>
+          <option value="Qo'y"${animalFilterTur==="Qo'y"?' selected':''}>Qo'y</option>
+          <option value="Echki"${animalFilterTur==='Echki'?' selected':''}>Echki</option>
+          <option value="Ot"${animalFilterTur==='Ot'?' selected':''}>Ot</option>
+          <option value="Cho'chqa"${animalFilterTur==="Cho'chqa"?' selected':''}>Cho'chqa</option>
         </select>
-        <select style="width:180px">
-          <option>Barcha yoshlar</option>
-          <option>Buzoq (0–6 oy)</option>
-          <option>O'smir (6–24 oy)</option>
-          <option>Katta (2+ yil)</option>
+        <select style="width:160px" onchange="animalFilterAge=this.value;renderAnimals()">
+          <option value="">Barcha yoshlar</option>
+          <option value="buzoq"${animalFilterAge==='buzoq'?' selected':''}>Buzoq (0–6 oy)</option>
+          <option value="osmir"${animalFilterAge==='osmir'?' selected':''}>O'smir (6–24 oy)</option>
+          <option value="katta"${animalFilterAge==='katta'?' selected':''}>Katta (24+ oy)</option>
         </select>
       </div>
-      <div style="padding:8px 20px;border-top:1px solid var(--border);font-size:13px;color:var(--ink-secondary)">247 ta hayvon</div>
+      <div style="padding:8px 20px;border-top:1px solid var(--border);font-size:13px;color:var(--ink-secondary)">${filtered.length} ta hayvon</div>
     </div>
-
     <div class="card" style="overflow:auto">
       <table class="data-table">
-        <thead>
-          <tr>
-            <th>Birka / laqab</th>
-            <th>Turi</th>
-            <th>Yoshi</th>
-            <th class="th-right">Vazni</th>
-            <th>Holati</th>
-            <th class="th-right hide-mobile">Amallar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><div><p style="font-weight:600;margin:0">A-0042</p><p style="font-size:12px;color:var(--ink-secondary);margin:2px 0 0">Sariqcha</p></div></td>
-            <td>Sigir · Ona</td><td>3 yil 2 oy</td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">480 kg</td>
-            <td><span class="badge badge-success">Faol</span></td>
-            <td class="td-right hide-mobile">
-              <div style="display:flex;gap:4px;justify-content:flex-end">
-                <button class="btn btn-ghost btn-sm" style="padding:5px 8px"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><div><p style="font-weight:600;margin:0">Q-0018</p><p style="font-size:12px;color:var(--ink-secondary);margin:2px 0 0">Oqtepa</p></div></td>
-            <td>Qo'y · Qo'chqor</td><td>1 yil 8 oy</td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">62 kg</td>
-            <td><span class="badge badge-success">Faol</span></td>
-            <td class="td-right hide-mobile">
-              <div style="display:flex;gap:4px;justify-content:flex-end">
-                <button class="btn btn-ghost btn-sm" style="padding:5px 8px"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><div><p style="font-weight:600;margin:0">A-0031</p></div></td>
-            <td>Sigir · Buqa</td><td>4 yil 1 oy</td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">620 kg</td>
-            <td><span class="badge badge-success">Faol</span></td>
-            <td class="td-right hide-mobile">
-              <div style="display:flex;gap:4px;justify-content:flex-end">
-                <button class="btn btn-ghost btn-sm" style="padding:5px 8px"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><div><p style="font-weight:600;margin:0">E-0005</p><p style="font-size:12px;color:var(--ink-secondary);margin:2px 0 0">Qoracha</p></div></td>
-            <td>Echki · Ona</td><td>2 yil 5 oy</td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">38 kg</td>
-            <td><span class="badge badge-neutral">Arxivda</span></td>
-            <td class="td-right hide-mobile">—</td>
-          </tr>
-          <tr>
-            <td><div><p style="font-weight:600;margin:0">Q-0027</p></div></td>
-            <td>Qo'y · Ona</td><td>8 oy</td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">—</td>
-            <td><span class="badge badge-success">Faol</span></td>
-            <td class="td-right hide-mobile">
-              <div style="display:flex;gap:4px;justify-content:flex-end">
-                <button class="btn btn-ghost btn-sm" style="padding:5px 8px"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
+        <thead><tr>
+          <th>Birka / laqab</th><th>Turi</th><th>Yoshi</th>
+          <th class="th-right">Vazni</th><th>Holati</th>
+          <th class="th-right hide-mobile">Amallar</th>
+        </tr></thead>
+        <tbody>${rowsHTML || '<tr><td colspan="6" style="text-align:center;color:var(--ink-muted);padding:24px">Hayvon topilmadi</td></tr>'}</tbody>
       </table>
     </div>
-  </div>
+  `;
+}
 
-  <!-- FEED INVENTORY -->
-  <div class="page" id="pg-feed">
+function animalFormHTML(a) {
+  return `
+    <div class="form-group">
+      <div class="field">
+        <label class="field-label">Birka raqami <span>*</span></label>
+        <input type="text" id="af-birka" value="${a ? a.birka : ''}" placeholder="Masalan: A-0042"/>
+      </div>
+      <div class="field">
+        <label class="field-label">Laqabi</label>
+        <input type="text" id="af-laqab" value="${a ? (a.laqab||'') : ''}" placeholder="Ixtiyoriy"/>
+      </div>
+      <div class="field">
+        <label class="field-label">Turi <span>*</span></label>
+        <select id="af-tur">
+          ${['Sigir',"Qo'y",'Echki','Ot',"Cho'chqa"].map(t=>`<option${a&&a.tur===t?' selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Jinsi <span>*</span></label>
+        <select id="af-jins">
+          ${['Ona','Erkak','Buqa',"Qo'chqor",'Tekachi','Buzoq'].map(j=>`<option${a&&a.jins===j?' selected':''}>${j}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Yoshi (oy) <span>*</span></label>
+        <input type="number" id="af-yosh" value="${a ? a.yoshOy : ''}" placeholder="Masalan: 24" min="0"/>
+      </div>
+      <div class="field">
+        <label class="field-label">Vazni (kg)</label>
+        <input type="number" id="af-vazn" value="${a ? (a.vazni||'') : ''}" placeholder="0 = noma'lum" min="0"/>
+      </div>
+      <div class="field">
+        <label class="field-label">Holati</label>
+        <select id="af-holat">
+          <option value="faol"${a&&a.holati==='faol'?' selected':''}>Faol</option>
+          <option value="arxivda"${a&&a.holati==='arxivda'?' selected':''}>Arxivda</option>
+        </select>
+      </div>
+    </div>`;
+}
+
+function openAddAnimalModal() {
+  openModal("Hayvon qo'shish", animalFormHTML(null),
+    `<button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+     <button class="btn btn-primary" onclick="saveAnimal(null)">Saqlash</button>`
+  );
+}
+function openEditAnimalModal(id) {
+  const a = state.animals.find(x => x.id === id);
+  if (!a) return;
+  openModal("Hayvonni tahrirlash", animalFormHTML(a),
+    `<button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+     <button class="btn btn-primary" onclick="saveAnimal(${id})">Saqlash</button>`
+  );
+}
+function saveAnimal(id) {
+  const birka = document.getElementById('af-birka').value.trim();
+  if (!birka) { alert("Birka raqamini kiriting!"); return; }
+  const yoshOy = parseInt(document.getElementById('af-yosh').value) || 0;
+  if (id) {
+    const a = state.animals.find(x => x.id === id);
+    if (a) {
+      a.birka = birka;
+      a.laqab = document.getElementById('af-laqab').value.trim();
+      a.tur = document.getElementById('af-tur').value;
+      a.jins = document.getElementById('af-jins').value;
+      a.yoshOy = yoshOy;
+      a.vazni = parseFloat(document.getElementById('af-vazn').value) || 0;
+      a.holati = document.getElementById('af-holat').value;
+    }
+    showToast("Hayvon yangilandi ✓");
+  } else {
+    state.animals.push({
+      id: nextId(),
+      birka,
+      laqab: document.getElementById('af-laqab').value.trim(),
+      tur: document.getElementById('af-tur').value,
+      jins: document.getElementById('af-jins').value,
+      yoshOy,
+      vazni: parseFloat(document.getElementById('af-vazn').value) || 0,
+      holati: document.getElementById('af-holat').value
+    });
+    showToast("Hayvon qo'shildi ✓");
+  }
+  saveState();
+  closeModal();
+  renderAnimals();
+}
+function confirmDeleteAnimal(id) {
+  const a = state.animals.find(x => x.id === id);
+  if (!a) return;
+  openModal("Hayvonni o'chirish",
+    `<p>Siz <strong>${a.birka}${a.laqab ? ' ('+a.laqab+')' : ''}</strong> hayvonini o'chirmoqchimisiz? Bu amalni qaytarib bo'lmaydi.</p>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+     <button class="btn btn-danger" onclick="deleteAnimal(${id})">O'chirish</button>`
+  );
+}
+function deleteAnimal(id) {
+  state.animals = state.animals.filter(a => a.id !== id);
+  saveState();
+  closeModal();
+  showToast("Hayvon o'chirildi");
+  renderAnimals();
+}
+
+// =================== FEED ===================
+function renderFeed() {
+  const totalTypes = state.feeds.length;
+  const totalKg = state.feeds.reduce((s,f) => s+f.miqdor, 0);
+  const totalVal = state.feeds.reduce((s,f) => s+f.miqdor*f.narx, 0);
+  const lowCount = state.feeds.filter(f => f.miqdor < f.minimal).length;
+
+  const alertHTML = lowCount > 0 ? `
+    <div class="alert alert-warning">
+      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div><strong>${lowCount} ta yem kam qoldi yoki tugadi</strong>
+        <ul style="margin:6px 0 0;padding-left:16px;font-size:13px">
+          ${state.feeds.filter(f=>f.miqdor<f.minimal).map(f=>`<li>${f.nom}: <strong>${fmt(f.miqdor)} kg</strong> (minimal ${fmt(f.minimal)} kg)</li>`).join('')}
+        </ul>
+      </div>
+    </div>` : '';
+
+  const feedRowsHTML = state.feeds.map(f => `
+    <tr>
+      <td><span style="font-weight:600">${f.nom}</span></td>
+      <td class="td-right" style="font-variant-numeric:tabular-nums">${fmt(f.miqdor)} kg</td>
+      <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">${f.narx ? fmt(f.narx)+' so\'m/kg' : '—'}</td>
+      <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">${f.narx ? fmt(f.miqdor*f.narx)+' so\'m' : '—'}</td>
+      <td>${feedBadge(f)}</td>
+      <td class="td-right hide-mobile">
+        <div style="display:flex;gap:4px;justify-content:flex-end">
+          <button class="btn btn-primary btn-sm" onclick="openKirimModal(${f.id})">+ Kirim</button>
+          <button class="btn btn-secondary btn-sm" onclick="openSarfModal(${f.id})"${f.miqdor===0?' disabled':''}>− Sarf</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  const recentMoves = [...state.movements].reverse().slice(0, 6);
+  const movesHTML = recentMoves.map(m =>
+    `<li class="movement-item">
+      <span class="movement-dot movement-dot-${m.tur==='kirim'?'in':'out'}"></span>
+      <div class="movement-info">
+        <div class="movement-name">${m.feedNom} ${m.tur}</div>
+        <div class="movement-date">${fmtDate(m.sana)}</div>
+      </div>
+      <span class="movement-qty movement-qty-${m.tur==='kirim'?'in':'out'}">${m.tur==='kirim'?'+':'-'}${fmt(m.miqdor)} kg</span>
+    </li>`
+  ).join('');
+
+  document.getElementById('pg-feed').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <h1 class="page-title">Yem ombori</h1>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary btn-sm">
+        <button class="btn btn-secondary btn-sm" onclick="openRationModal()">
           <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
           Ratsion hisoblash
         </button>
-        <button class="btn btn-primary btn-sm">
+        <button class="btn btn-primary btn-sm" onclick="openAddFeedModal()">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Yem qo'shish
         </button>
@@ -762,138 +815,44 @@ section > h2 { display: none; }
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-card-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
-        <div class="stat-card-value">6</div>
+        <div class="stat-card-value">${totalTypes}</div>
         <div class="stat-card-label">Yem turlari</div>
       </div>
       <div class="stat-card">
         <div class="stat-card-icon"><svg viewBox="0 0 24 24"><path d="M22 8.5V16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.5"/><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6z"/></svg></div>
-        <div class="stat-card-value">12.4 t</div>
+        <div class="stat-card-value">${totalKg >= 1000 ? (totalKg/1000).toFixed(1)+' t' : fmt(totalKg)+' kg'}</div>
         <div class="stat-card-label">Umumiy qoldiq</div>
       </div>
       <div class="stat-card">
         <div class="stat-card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-        <div class="stat-card-value">6.8 mln</div>
+        <div class="stat-card-value">${totalVal >= 1000000 ? (totalVal/1000000).toFixed(1)+' mln' : fmt(totalVal)}</div>
         <div class="stat-card-label">Ombor qiymati</div>
       </div>
       <div class="stat-card">
         <div class="stat-card-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-        <div class="stat-card-value">2</div>
+        <div class="stat-card-value">${lowCount}</div>
         <div class="stat-card-label">Kam qolgan yemlar</div>
       </div>
     </div>
 
-    <div class="alert alert-warning">
-      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <div>
-        <strong>2 ta yem kam qoldi</strong>
-        <ul style="margin:6px 0 0;padding-left:16px;font-size:13px">
-          <li>Temir sulfat: <strong>0 kg</strong> (minimal 50 kg)</li>
-          <li>Arpa: <strong>120 kg</strong> (minimal 500 kg)</li>
-        </ul>
-      </div>
-    </div>
+    ${alertHTML}
 
     <div class="card" style="overflow:auto">
       <div class="card-header">
         <div class="card-header-left">
           <div class="card-header-icon"><svg viewBox="0 0 24 24"><path d="M22 8.5V16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.5"/><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6z"/></svg></div>
-          <div>
-            <p class="card-title">Yem mahsulotlari</p>
-            <p class="card-desc">Ferma: Abdullayev fermasi</p>
-          </div>
+          <p class="card-title">Yem mahsulotlari</p>
         </div>
       </div>
       <table class="data-table">
-        <thead>
-          <tr>
-            <th>Yem nomi</th>
-            <th class="th-right">Miqdori</th>
-            <th class="th-right hide-mobile">1 kg narxi</th>
-            <th class="th-right hide-mobile">Qiymati</th>
-            <th>Holat</th>
-            <th class="th-right hide-mobile">Amallar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><span style="font-weight:600">Bedapoya</span></td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">3 400 kg</td>
-            <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">1 200 so'm/kg</td>
-            <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">4 080 000 so'm</td>
-            <td><span class="badge badge-success">Yetarli</span></td>
-            <td class="td-right hide-mobile">
-              <div style="display:flex;gap:4px;justify-content:flex-end">
-                <button class="btn btn-primary btn-sm">+ Kirim</button>
-                <button class="btn btn-secondary btn-sm">− Sarf</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span style="font-weight:600">Somon</span></td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">5 800 kg</td>
-            <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">400 so'm/kg</td>
-            <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">2 320 000 so'm</td>
-            <td><span class="badge badge-success">Yetarli</span></td>
-            <td class="td-right hide-mobile">
-              <div style="display:flex;gap:4px;justify-content:flex-end">
-                <button class="btn btn-primary btn-sm">+ Kirim</button>
-                <button class="btn btn-secondary btn-sm">− Sarf</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span style="font-weight:600">Kombi yem</span></td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">1 200 kg</td>
-            <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">3 500 so'm/kg</td>
-            <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">4 200 000 so'm</td>
-            <td><span class="badge badge-success">Yetarli</span></td>
-            <td class="td-right hide-mobile">
-              <div style="display:flex;gap:4px;justify-content:flex-end">
-                <button class="btn btn-primary btn-sm">+ Kirim</button>
-                <button class="btn btn-secondary btn-sm">− Sarf</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span style="font-weight:600">Arpa</span></td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">120 kg</td>
-            <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">2 800 so'm/kg</td>
-            <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">336 000 so'm</td>
-            <td><span class="badge badge-warning">Kam qoldi</span></td>
-            <td class="td-right hide-mobile">
-              <div style="display:flex;gap:4px;justify-content:flex-end">
-                <button class="btn btn-primary btn-sm">+ Kirim</button>
-                <button class="btn btn-secondary btn-sm" disabled>− Sarf</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span style="font-weight:600">Temir sulfat</span></td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">0 kg</td>
-            <td class="td-right hide-mobile">—</td>
-            <td class="td-right hide-mobile">—</td>
-            <td><span class="badge badge-danger">Tugagan</span></td>
-            <td class="td-right hide-mobile">
-              <div style="display:flex;gap:4px;justify-content:flex-end">
-                <button class="btn btn-primary btn-sm">+ Kirim</button>
-                <button class="btn btn-secondary btn-sm" disabled>− Sarf</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span style="font-weight:600">Bug'doy kepagi</span></td>
-            <td class="td-right" style="font-variant-numeric:tabular-nums">1 880 kg</td>
-            <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">1 800 so'm/kg</td>
-            <td class="td-right hide-mobile" style="font-variant-numeric:tabular-nums">3 384 000 so'm</td>
-            <td><span class="badge badge-success">Yetarli</span></td>
-            <td class="td-right hide-mobile">
-              <div style="display:flex;gap:4px;justify-content:flex-end">
-                <button class="btn btn-primary btn-sm">+ Kirim</button>
-                <button class="btn btn-secondary btn-sm">− Sarf</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
+        <thead><tr>
+          <th>Yem nomi</th><th class="th-right">Miqdori</th>
+          <th class="th-right hide-mobile">1 kg narxi</th>
+          <th class="th-right hide-mobile">Qiymati</th>
+          <th>Holat</th>
+          <th class="th-right hide-mobile">Amallar</th>
+        </tr></thead>
+        <tbody>${feedRowsHTML}</tbody>
       </table>
     </div>
 
@@ -904,197 +863,277 @@ section > h2 { display: none; }
           <p class="card-title">Yaqindagi ombor harakatlari</p>
         </div>
       </div>
-      <ul class="movements-list">
-        <li class="movement-item">
-          <span class="movement-dot movement-dot-in"></span>
-          <div class="movement-info"><div class="movement-name">Bedapoya kirim</div><div class="movement-date">21-Oct-2026, 09:15</div></div>
-          <span class="movement-qty movement-qty-in">+500 kg</span>
-        </li>
-        <li class="movement-item">
-          <span class="movement-dot movement-dot-out"></span>
-          <div class="movement-info"><div class="movement-name">Arpa sarf</div><div class="movement-date">21-Oct-2026, 08:00</div></div>
-          <span class="movement-qty movement-qty-out">-80 kg</span>
-        </li>
-        <li class="movement-item">
-          <span class="movement-dot movement-dot-in"></span>
-          <div class="movement-info"><div class="movement-name">Kombi yem kirim</div><div class="movement-date">19-Oct-2026, 16:20</div></div>
-          <span class="movement-qty movement-qty-in">+600 kg</span>
-        </li>
-        <li class="movement-item">
-          <span class="movement-dot movement-dot-out"></span>
-          <div class="movement-info"><div class="movement-name">Bug'doy kepagi sarf</div><div class="movement-date">19-Oct-2026, 07:30</div></div>
-          <span class="movement-qty movement-qty-out">-120 kg</span>
-        </li>
-      </ul>
+      <ul class="movements-list">${movesHTML || '<li style="padding:16px 20px;color:var(--ink-muted);font-size:14px">Harakat yo\'q</li>'}</ul>
     </div>
-  </div>
+  `;
+}
 
-  <!-- MORE (Boshqa) -->
-  <div class="page" id="pg-more">
+function openKirimModal(feedId) {
+  const f = state.feeds.find(x => x.id === feedId);
+  if (!f) return;
+  openModal(f.nom + " — kirim",
+    `<div class="form-group">
+      <div class="field">
+        <label class="field-label">Miqdor (kg) <span>*</span></label>
+        <input type="number" id="km-miqdor" placeholder="Masalan: 500" min="1"/>
+      </div>
+      <div class="field">
+        <label class="field-label">1 kg narxi (so'm)</label>
+        <input type="number" id="km-narx" value="${f.narx || ''}" placeholder="${f.narx || 'Masalan: 1200'}" min="0"/>
+        <span class="field-hint">Hozirgi narx: ${fmt(f.narx)} so'm/kg</span>
+      </div>
+    </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+     <button class="btn btn-primary" onclick="doKirim(${feedId})">Kirim qilish</button>`
+  );
+}
+function doKirim(feedId) {
+  const miqdor = parseFloat(document.getElementById('km-miqdor').value) || 0;
+  if (miqdor <= 0) { alert("Miqdorni kiriting!"); return; }
+  const narxVal = parseFloat(document.getElementById('km-narx').value) || 0;
+  const f = state.feeds.find(x => x.id === feedId);
+  if (!f) return;
+  f.miqdor += miqdor;
+  if (narxVal > 0) f.narx = narxVal;
+  state.movements.push({id: nextId(), feedId, feedNom: f.nom, tur:'kirim', miqdor, sana: new Date().toISOString().slice(0,16)});
+  saveState();
+  closeModal();
+  showToast(`${f.nom}: +${fmt(miqdor)} kg kirim ✓`);
+  renderFeed();
+}
+
+function openSarfModal(feedId) {
+  const f = state.feeds.find(x => x.id === feedId);
+  if (!f || f.miqdor === 0) return;
+  openModal(f.nom + " — sarf",
+    `<div class="form-group">
+      <div class="field">
+        <label class="field-label">Miqdor (kg) <span>*</span></label>
+        <input type="number" id="sm-miqdor" placeholder="Masalan: 100" min="1" max="${f.miqdor}"/>
+        <span class="field-hint">Mavjud: ${fmt(f.miqdor)} kg</span>
+      </div>
+    </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+     <button class="btn btn-primary" onclick="doSarf(${feedId})">Sarf qilish</button>`
+  );
+}
+function doSarf(feedId) {
+  const miqdor = parseFloat(document.getElementById('sm-miqdor').value) || 0;
+  if (miqdor <= 0) { alert("Miqdorni kiriting!"); return; }
+  const f = state.feeds.find(x => x.id === feedId);
+  if (!f) return;
+  if (miqdor > f.miqdor) { alert(`Mavjud miqdordan ko'p: ${fmt(f.miqdor)} kg`); return; }
+  f.miqdor -= miqdor;
+  state.movements.push({id: nextId(), feedId, feedNom: f.nom, tur:'sarf', miqdor, sana: new Date().toISOString().slice(0,16)});
+  saveState();
+  closeModal();
+  showToast(`${f.nom}: -${fmt(miqdor)} kg sarf ✓`);
+  renderFeed();
+}
+
+function openAddFeedModal() {
+  openModal("Yem qo'shish",
+    `<div class="form-group">
+      <div class="field">
+        <label class="field-label">Yem nomi <span>*</span></label>
+        <input type="text" id="ff-nom" placeholder="Masalan: Bedapoya"/>
+      </div>
+      <div class="field">
+        <label class="field-label">Miqdor (kg) <span>*</span></label>
+        <input type="number" id="ff-miqdor" placeholder="Masalan: 1000" min="0"/>
+      </div>
+      <div class="field">
+        <label class="field-label">1 kg narxi (so'm) <span>*</span></label>
+        <input type="number" id="ff-narx" placeholder="Masalan: 1200" min="0"/>
+      </div>
+      <div class="field">
+        <label class="field-label">Minimal zaxira (kg) <span>*</span></label>
+        <input type="number" id="ff-min" placeholder="Masalan: 500" min="0"/>
+      </div>
+    </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+     <button class="btn btn-primary" onclick="saveFeed()">Saqlash</button>`
+  );
+}
+function saveFeed() {
+  const nom = document.getElementById('ff-nom').value.trim();
+  if (!nom) { alert("Yem nomini kiriting!"); return; }
+  state.feeds.push({
+    id: nextId(),
+    nom,
+    miqdor: parseFloat(document.getElementById('ff-miqdor').value) || 0,
+    narx: parseFloat(document.getElementById('ff-narx').value) || 0,
+    minimal: parseFloat(document.getElementById('ff-min').value) || 0
+  });
+  saveState();
+  closeModal();
+  showToast("Yem qo'shildi ✓");
+  renderFeed();
+}
+
+function openRationModal() {
+  const turOpts = [...new Set(state.animals.map(a => a.tur))].map(t => `<option value="${t}">${t}</option>`).join('');
+  openModal("Yem ratsionini hisoblash",
+    `<div class="form-group">
+      <div class="field">
+        <label class="field-label">Hayvon turi</label>
+        <select id="rn-tur">${turOpts}</select>
+      </div>
+      <div class="field">
+        <label class="field-label">Hayvonlar soni</label>
+        <input type="number" id="rn-son" placeholder="Masalan: 50" min="1"/>
+      </div>
+      <div class="field">
+        <label class="field-label">Kunlar soni</label>
+        <input type="number" id="rn-kun" placeholder="Masalan: 30" min="1"/>
+      </div>
+      <div id="rn-result" style="margin-top:8px"></div>
+    </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Yopish</button>
+     <button class="btn btn-primary" onclick="calcRation()">Hisoblash</button>`
+  );
+}
+function calcRation() {
+  const tur = document.getElementById('rn-tur').value;
+  const son = parseInt(document.getElementById('rn-son').value) || 0;
+  const kun = parseInt(document.getElementById('rn-kun').value) || 0;
+  if (!son || !kun) { alert("Soni va kunlarni kiriting!"); return; }
+  const kgPerDay = tur === 'Sigir' ? 5 : 2;
+  const total = son * kgPerDay * kun;
+  document.getElementById('rn-result').innerHTML =
+    `<div class="report-text">${tur} · ${son} bosh · ${kun} kun:\n\nKunlik talab: ${fmt(son*kgPerDay)} kg\nJami talab: ${fmt(total)} kg\n(Hisob: ${kgPerDay} kg/bosh/kun)</div>`;
+}
+
+function openExpenseModal() {
+  const total = state.feeds.reduce((s,f) => s+f.miqdor*f.narx, 0);
+  const breakdown = state.feeds.filter(f=>f.narx>0).map(f => `  ${f.nom}: ${fmt(f.miqdor*f.narx)} so'm`).join('\n');
+  openModal("Ombor xarajatlari",
+    `<div class="report-text">Ombordagi yemlar qiymati:\n\n${breakdown}\n\nJami: ${fmt(total)} so'm</div>`,
+    `<button class="btn btn-primary" onclick="closeModal()">Yopish</button>`
+  );
+}
+
+// =================== MORE ===================
+function renderMore() {
+  const user = state.user;
+  document.getElementById('pg-more').innerHTML = `
     <h1 class="page-title">Boshqa</h1>
     <div style="display:grid;gap:10px">
-      <a class="quick-action" style="min-height:60px" onclick="switchTab(1)">
+      <div class="quick-action" style="min-height:60px" onclick="switchTab(1)">
         <div class="quick-icon" style="background:#ff9500"><svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/></svg></div>
-        <div><div class="quick-label">Hayvonlar</div></div>
-      </a>
-      <a class="quick-action" style="min-height:60px">
+        <div><div class="quick-label">Hayvonlar</div><div class="quick-desc">${state.animals.length} ta bosh</div></div>
+      </div>
+      <div class="quick-action" style="min-height:60px" onclick="openGuruhlarModal()">
         <div class="quick-icon" style="background:#5856d6"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
         <div><div class="quick-label">Guruhlar</div></div>
-      </a>
-      <a class="quick-action" style="min-height:60px">
+      </div>
+      <div class="quick-action" style="min-height:60px" onclick="openHisobotModal()">
         <div class="quick-icon" style="background:#af52de"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
         <div><div class="quick-label">Hisobot</div></div>
-      </a>
-      <a class="quick-action" style="min-height:60px">
+      </div>
+      <div class="quick-action" style="min-height:60px" onclick="openFermaModal()">
         <div class="quick-icon" style="background:#007aff"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
         <div><div class="quick-label">Fermalarim</div></div>
-      </a>
-      <a class="quick-action" style="min-height:60px">
+      </div>
+      <div class="quick-action" style="min-height:60px" onclick="openProfilModal()">
         <div class="quick-icon" style="background:#30b0c7"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-        <div><div class="quick-label">Profil va sozlamalar</div></div>
-      </a>
-      <a class="quick-action" style="min-height:60px;border-color:var(--danger-light)" onclick="showLogin()">
+        <div><div class="quick-label">Profil va sozlamalar</div><div class="quick-desc">${user ? user.name : ''}</div></div>
+      </div>
+      <div class="quick-action" style="min-height:60px;border-color:var(--danger-light)" onclick="confirmLogout()">
         <div class="quick-icon" style="background:var(--danger)"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
         <div><div class="quick-label" style="color:var(--danger)">Chiqish</div></div>
-      </a>
+      </div>
     </div>
-  </div>
-
-  <!-- Bottom tab bar -->
-  <nav class="tabbar-wrap" aria-label="Asosiy navigatsiya">
-    <div class="tabbar" style="--n:4">
-      <div class="tab-indicator" id="tab-indicator"></div>
-
-      <button class="tab" id="tab-0" onclick="switchTab(0)" aria-label="Ombor" aria-current="false">
-        <span class="tab-icon">
-          <svg viewBox="0 0 24 24"><path d="M22 8.5V16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.5"/><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6z"/></svg>
-        </span>
-        <span class="tab-label">Ombor</span>
-      </button>
-
-      <button class="tab active" id="tab-1" onclick="switchTab(1)" aria-label="Bosh sahifa" aria-current="page">
-        <span class="tab-icon">
-          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </span>
-        <span class="tab-label">Bosh sahifa</span>
-      </button>
-
-      <button class="tab" id="tab-2" onclick="switchTab(2)" aria-label="Dorixona" aria-current="false">
-        <span class="tab-icon">
-          <svg viewBox="0 0 24 24"><path d="M10.5 2h3a1 1 0 0 1 1 1v1H9.5V3a1 1 0 0 1 1-1z"/><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="12" y1="9" x2="12" y2="17"/><line x1="8" y1="13" x2="16" y2="13"/></svg>
-        </span>
-        <span class="tab-label">Dorixona</span>
-      </button>
-
-      <button class="tab" id="tab-3" onclick="switchTab(3)" aria-label="Boshqa" aria-current="false">
-        <span class="tab-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-        </span>
-        <span class="tab-label">Boshqa</span>
-      </button>
-    </div>
-  </nav>
-
-</div><!-- /main-app -->
-</div><!-- /app -->
-
-<script>
-const PAGES = ['pg-feed', 'pg-dashboard', 'pg-feed', 'pg-more'];
-const TABS = 4;
-
-// Map tab index to page id
-const TAB_PAGES = {0: 'pg-feed', 1: 'pg-dashboard', 2: 'pg-feed', 3: 'pg-more'};
-// Animals page is reached from dashboard links
-let currentTab = 1;
-
-function switchTab(idx) {
-  // update indicator
-  document.getElementById('tab-indicator').style.setProperty('--active-tab', idx);
-
-  // update tab buttons
-  for (let i = 0; i < TABS; i++) {
-    const btn = document.getElementById('tab-' + i);
-    if (!btn) continue;
-    btn.classList.toggle('active', i === idx);
-    btn.setAttribute('aria-current', i === idx ? 'page' : 'false');
+  `;
+}
+function openGuruhlarModal() {
+  openModal("Guruhlar",
+    `<p style="color:var(--ink-secondary);text-align:center;padding:24px 0">
+      <span style="font-size:48px">🚜</span><br/><br/>
+      <strong>Tez kunda</strong><br/>Guruhlar funksiyasi ishlab chiqilmoqda
+    </p>`,
+    `<button class="btn btn-primary" onclick="closeModal()">Yopish</button>`
+  );
+}
+function openHisobotModal() {
+  const turCounts = {};
+  state.animals.forEach(a => { turCounts[a.tur] = (turCounts[a.tur] || 0) + 1; });
+  const totalKg = state.feeds.reduce((s,f) => s+f.miqdor, 0);
+  const totalVal = state.feeds.reduce((s,f) => s+f.miqdor*f.narx, 0);
+  const lowFeeds = state.feeds.filter(f => f.miqdor < f.minimal);
+  const report = `HAYVONLAR:\nJami: ${state.animals.length} bosh\n${Object.entries(turCounts).map(([t,c])=>`  ${t}: ${c} bosh`).join('\n')}\n\nYEM OMBORI:\nJami qoldiq: ${fmt(totalKg)} kg\nJami qiymat: ${fmt(totalVal)} so'm\n${lowFeeds.length > 0 ? '\nKam qolgan:\n'+lowFeeds.map(f=>`  ${f.nom}: ${fmt(f.miqdor)} kg`).join('\n') : '\nBarcha yemlar yetarli.'}`;
+  openModal("Ferma hisoboti",
+    `<div class="report-text">${report}</div>`,
+    `<button class="btn btn-primary" onclick="closeModal()">Yopish</button>`
+  );
+}
+function openFermaModal() {
+  openModal("Fermalarim",
+    `<div class="form-group">
+      <div class="field">
+        <label class="field-label">Ferma nomi</label>
+        <input type="text" id="fm-nom" value="${state.farmName || 'Abdullayev fermasi'}"/>
+      </div>
+    </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+     <button class="btn btn-primary" onclick="saveFarmName()">Saqlash</button>`
+  );
+}
+function saveFarmName() {
+  const nom = document.getElementById('fm-nom').value.trim();
+  if (nom) {
+    state.farmName = nom;
+    saveState();
+    document.getElementById('header-farm-name').textContent = nom;
+    showToast("Ferma nomi saqlandi ✓");
+    closeModal();
+    renderMore();
   }
-
-  // show the right page
-  const pageId = TAB_PAGES[idx] || 'pg-dashboard';
-
-  // Special: tab 1 (dashboard) can also show animals
-  let show = pageId;
-  if (idx === 1) show = 'pg-dashboard';
-  if (idx === 0) show = 'pg-feed';
-  if (idx === 2) show = 'pg-feed'; // medicines not yet built, reuse feed
-  if (idx === 3) show = 'pg-more';
-
-  document.querySelectorAll('#main-app .page').forEach(p => {
-    p.classList.toggle('active', p.id === show);
-  });
-
-  currentTab = idx;
+}
+function openProfilModal() {
+  const user = state.user || {};
+  openModal("Profil",
+    `<div class="form-group">
+      <div class="field">
+        <label class="field-label">Ism va familiya</label>
+        <input type="text" id="pr-nom" value="${user.name || ''}"/>
+      </div>
+    </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+     <button class="btn btn-primary" onclick="saveProfil()">Saqlash</button>`
+  );
+}
+function saveProfil() {
+  const nom = document.getElementById('pr-nom').value.trim();
+  if (nom) {
+    state.user = {name: nom};
+    saveState();
+    const firstName = nom.split(' ')[0];
+    document.getElementById('header-avatar').textContent = firstName[0].toUpperCase();
+    showToast("Profil yangilandi ✓");
+    closeModal();
+    renderMore();
+  }
+}
+function confirmLogout() {
+  openModal("Chiqish",
+    `<p>Tizimdan chiqmoqchimisiz?</p>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+     <button class="btn btn-danger" onclick="doLogout()">Chiqish</button>`
+  );
 }
 
-// Override animals link from dashboard
-document.querySelectorAll('[onclick="switchTab(1)"]').forEach(el => {
-  // these are fine — they show dashboard
-});
-
-let userName = 'Alisher';
-
-function authTab(tab) {
-  const isLogin = tab === 'login';
-  document.getElementById('tab-login-btn').classList.toggle('active', isLogin);
-  document.getElementById('tab-reg-btn').classList.toggle('active', !isLogin);
-  document.getElementById('panel-login').style.display = isLogin ? '' : 'none';
-  document.getElementById('panel-reg').style.display = isLogin ? 'none' : '';
-}
-
-function loginWithName() {
-  const val = (document.getElementById('login-name').value || '').trim();
-  if (!val) { document.getElementById('login-name').focus(); return; }
-  userName = val.split(' ')[0];
-  showApp();
-}
-
-function registerWithName() {
-  const val = (document.getElementById('reg-name').value || '').trim();
-  if (!val) { document.getElementById('reg-name').focus(); return; }
-  userName = val.split(' ')[0];
-  showApp();
-}
-
-function showApp() {
-  document.getElementById('pg-login').classList.remove('active');
+// =================== INIT ===================
+loadState();
+if (state.user) {
+  document.getElementById('pg-auth').classList.remove('active');
   document.getElementById('main-app').style.display = 'flex';
   document.getElementById('main-app').style.flexDirection = 'column';
-  // update greeting with entered name
-  const greet = document.getElementById('greet-name');
-  if (greet) greet.textContent = userName;
-  const avatar = document.getElementById('header-avatar');
-  if (avatar) avatar.textContent = userName[0].toUpperCase();
-  switchTab(1);
+  const firstName = (state.user.name || 'F').split(' ')[0];
+  document.getElementById('header-avatar').textContent = firstName[0].toUpperCase();
+  if (state.farmName) document.getElementById('header-farm-name').textContent = state.farmName;
+  switchTab(0);
 }
-
-function showLogin() {
-  document.getElementById('main-app').style.display = 'none';
-  document.getElementById('pg-login').classList.add('active');
-  authTab('login');
-}
-
-// Animals link from dashboard
-document.addEventListener('DOMContentLoaded', () => {
-  // Add click to animals stat card and quick action to show animals
-  document.querySelectorAll('#pg-dashboard .stat-card').forEach((card, i) => {
-    if (i === 0) {
-      card.addEventListener('click', () => {
-        document.querySelectorAll('#main-app .page').forEach(p => p.classList.remove('active'));
-        document.getElementById('pg-animals').classList.add('active');
-      });
-    }
-  });
-});
 </script>
 </body>
 </html>
